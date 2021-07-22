@@ -13,6 +13,7 @@ void processDetails(DWORD dwprocessID) {
 	HANDLE hProcess;
 	DWORD bytesNeededForStoring = 0;
 	DWORD dwDesiredAccess = PROCESS_ALL_ACCESS;
+	cout << "checking if gits working" << endl;
 	BOOL bInheritHandle = FALSE;
 	BOOL bEnumProcessModule = FALSE;
 	TCHAR ProcessName[] = TEXT("Unknown/ hidden");
@@ -79,15 +80,6 @@ int main() {
 		cout << ptr[i] << endl;
 	}
 	free(ptr);
-
-
-
-
-
-
-
-
-
 
 
 
