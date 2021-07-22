@@ -1,5 +1,3 @@
-/* https://docs.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocesses */
-
 #include <Windows.h>
 #include <Psapi.h>
 #include <wchar.h>
@@ -8,12 +6,78 @@
 
 using namespace std;
 
+//function declaration before main fn;
+void processDetails(DWORD dwprocessID);
+
+
+int main() {
+
+	//DWORD processIdentifiers[100] = { 0 };
+	
+	DWORD lengthOfArray = 300;//in bytes
+	DWORD* processIdentifiers;
+	processIdentifiers = (DWORD*)malloc(lengthOfArray * sizeof(DWORD));//holds address of first place in the dynamically created array
+	if (processIdentifiers == NULL)
+	{
+		cout << "Memory Allocation Failed";
+		exit(1);
+	}
+	else {
+		cout << "Memory is now allocated" << endl;
+	}
+
+	cout << "process identifiers allocated : " << lengthOfArray / sizeof(DWORD)  << endl;
+
+	DWORD bytesNeededForStoring = 0;
+	BOOL bEnumProcess = EnumProcesses(processIdentifiers, lengthOfArray, &bytesNeededForStoring);
+	if (bEnumProcess == FALSE) {
+		cout << "ENUM Process identifier fetching function failed " << endl << endl;
+		cout << "Error code: " << GetLastError() << endl;
+		return 0;
+	}
+	cout << "ENUM Process identifier fetching function succeeded" << endl << endl;
+
+	//when bytesneededforstoring == length of process identifiers array
+
+	while (bytesNeededForStoring == lengthOfArray) { 
+
+		lengthOfArray = lengthOfArray + 100;
+		processIdentifiers = (DWORD*)realloc(processIdentifiers, lengthOfArray * sizeof(DWORD));
+		if (processIdentifiers == NULL)
+		{
+			cout << "Memory ReAllocation Failed";
+			exit(1);
+		}
+		else {
+			cout << "Memory is now re-allocated" << endl;
+		}
+
+		BOOL bEnumProcess = EnumProcesses(processIdentifiers, lengthOfArray, &bytesNeededForStoring);
+		cout << lengthOfArray / sizeof(DWORD) << " : These many processes can fit in the process identifier array now" << endl; 
+
+	}
+
+	DWORD totalNoOfProcesses = bytesNeededForStoring / sizeof(DWORD);
+
+	for (DWORD l_proc_index = 0; l_proc_index < totalNoOfProcesses; l_proc_index++) {
+
+		processDetails(processIdentifiers[l_proc_index]);
+
+	}
+
+	cout << "Total number of processes : " << totalNoOfProcesses << endl;
+
+	free(processIdentifiers);
+
+	return 0;
+}
+
+
 void processDetails(DWORD dwprocessID) {
 
 	HANDLE hProcess;
 	DWORD bytesNeededForStoring = 0;
 	DWORD dwDesiredAccess = PROCESS_ALL_ACCESS;
-	cout << "checking if gits working" << endl;
 	BOOL bInheritHandle = FALSE;
 	BOOL bEnumProcessModule = FALSE;
 	TCHAR ProcessName[] = TEXT("Unknown/ hidden");
@@ -39,149 +103,6 @@ void processDetails(DWORD dwprocessID) {
 
 	}
 
-}
-
-
-int main() {
-
-
-
-	DWORD* ptr;
-	ptr = (DWORD*)malloc(5 * sizeof(DWORD));
-	if (ptr == NULL)
-	{
-		cout << "Memory Allocation Failed";
-		exit(1);
-	}
-
-	/* Initializing memory block */
-	for (int i = 0; i < 5; i++)
-	{
-		ptr[i] = i * 1.5;
-	}
-
-	/* reallocating memory */
-	ptr = (DWORD*)realloc(ptr, 10 * sizeof(DWORD));
-	if (ptr == NULL)
-	{
-		cout << "Memory Re-allocation Failed";
-		exit(1);
-	}
-
-	/* Initializing re-allocated memory block */
-	for (int i = 5; i < 10; i++)
-	{
-		ptr[i] = i * 2.5;
-	}
-	cout << "Printing Values" << endl;
-
-	for (int i = 0; i < 10; i++)
-	{
-		cout << ptr[i] << endl;
-	}
-	free(ptr);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//DWORD processIdentifiers[100] = { 0 };
-	
-	DWORD* processIdentifiers;
-	processIdentifiers = (DWORD*)malloc(5 * sizeof(DWORD));
-	if (processIdentifiers == NULL)
-	{
-		cout << "Memory Allocation Failed";
-		exit(1);
-	}
-	else {
-		cout << "allocated re : " << sizeof(processIdentifiers) << endl;
-	}
-
-
-	/* reallocating memory */
-	processIdentifiers = (DWORD*)realloc(processIdentifiers, 10 * sizeof(DWORD));
-	if (processIdentifiers == NULL)
-	{
-		cout << "Memory Re-allocation Failed";
-		exit(1);
-	}
-
-	else {
-		cout << "reallocated rey" << endl;
-	}
-
-	DWORD bytesNeededForStoring = 0;
-	BOOL bEnumProcess = EnumProcesses(processIdentifiers, sizeof(processIdentifiers), &bytesNeededForStoring);
-	if (bEnumProcess == FALSE) {
-		cout << "ENUM Process identifier fetching function failed " << endl << endl;
-		cout << "Error code: " << GetLastError() << endl;
-		return 0;
-	}
-	DWORD totalNoOfProcesses = bytesNeededForStoring / sizeof(DWORD);
-	cout << "ENUM Process identifier fetching function succeeded"<< totalNoOfProcesses << endl << endl;
-
-
-	if (bytesNeededForStoring == sizeof(processIdentifiers)) {
-
-		//DWORD size;
-		//cin >> size;
-		//DWORD* processIdentifiers = new DWORD[size];
-
-		DWORD processIdentifiers[300];
-		DWORD bytesNeededForStoring = 0;
-		int size = sizeof(processIdentifiers);
-		cout << "size of processIdentifiers : " << size << endl;
-		BOOL bProcessEnum = EnumProcesses(processIdentifiers, sizeof(processIdentifiers), &bytesNeededForStoring);
-		if (bEnumProcess == FALSE) {
-			cout << "ENUM Process identifier fetching function failed " << endl << endl;
-			cout << "Error code: " << GetLastError() << endl;
-			return 0;
-		}
-		DWORD totalNoOfProcesses = bytesNeededForStoring / sizeof(DWORD);
-		cout << "size of processIdentifiers : " << size << endl;
-		cout << "ENUM Process identifier fetching function succeeded inside if " << endl << endl;
-
-
-
-		for (DWORD l_proc_index = 0; l_proc_index < totalNoOfProcesses; l_proc_index++) {
-
-			processDetails(processIdentifiers[l_proc_index]);
-
-		}
-
-		wcout << "Total number of processes running : " << totalNoOfProcesses << endl;
-	}
-
-
-
-	return 0;
 }
 
 /*
